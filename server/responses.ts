@@ -1,6 +1,7 @@
 import { User } from "./app";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/post";
+import { EntryAuthorNotMatchError, EntryDoc } from "./concepts/entry";
 import { Router } from "./framework/router";
 
 /**
@@ -28,6 +29,25 @@ export default class Responses {
   }
 
   /**
+   * Convert EntryDoc into more readable format for the frontend by converting the author id into a username.
+   */
+  static async entry(entry: EntryDoc | null) {
+    if (!entry) {
+      return entry;
+    }
+    const author = await User.getUserById(entry.author);
+    return { ...entry, author: author.username };
+  }
+
+  /**
+   * Same as {@link entry} but for an array of EntryDoc for improved performance.
+   */
+  static async entries(entries: EntryDoc[]) {
+    const authors = await User.idsToUsernames(entries.map((entry) => entry.author));
+    return entries.map((entry, i) => ({ ...entry, author: authors[i] }));
+  }
+
+  /**
    * Convert FriendRequestDoc into more readable format for the frontend
    * by converting the ids into usernames.
    */
@@ -38,6 +58,10 @@ export default class Responses {
     return requests.map((request, i) => ({ ...request, from: usernames[i], to: usernames[i + requests.length] }));
   }
 }
+Router.registerError(EntryAuthorNotMatchError, async (e) => {
+  const username = (await User.getUserById(e.author)).username;
+  return e.formatWith(username, e._id);
+});
 
 Router.registerError(PostAuthorNotMatchError, async (e) => {
   const username = (await User.getUserById(e.author)).username;

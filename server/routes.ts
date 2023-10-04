@@ -136,6 +136,115 @@ class Routes {
     const fromId = (await User.getUserByUsername(from))._id;
     return await Friend.rejectRequest(fromId, user);
   }
+
+  // // API FOR ENTRY CONCEPT
+  // @Router.get("/api/prompts/random")
+  // async fetchRandomPrompt() {
+  //   // Fetch a random journal prompt from a separate database or source.
+  // }
+
+  // @Router.post("/api/entries")
+  // async addEntry(session: WebSessionDoc, prompt: string, response: string) {
+  //   // Create a new journal entry with the provided prompt and response for the authenticated user.
+  // }
+
+  // @Router.get("/api/entries/:authorId")
+  // async getEntryByAuthor(authorId: ObjectId) {
+  //   // Retrieve journal entries by a specific author (user) identified by 'authorId'.
+  // }
+
+  // @Router.put("/api/entries/:entryId")
+  // async editEntry(entryId: ObjectId, response: string) {
+  //   // Update the response of a specific journal entry identified by 'entryId'.
+  // }
+
+  // @Router.delete("/api/entries/:entryId")
+  // async deleteEntry(entryId: ObjectId) {
+  //   // Delete a specific journal entry identified by 'entryId'.
+  // }
+
+  // // API FOR MESSAGE CONCEPT
+  // @Router.post("/api/messages")
+  // async sendMessage(senderId: ObjectId, recipientId: ObjectId, content: Entry) {
+  //   // API route to send a message with sender, recipient, and content.
+  // }
+
+  // @Router.get("/api/messages/sent/:senderId")
+  // async getSentMessages(senderId: ObjectId) {
+  //   // API route to get messages sent by a specific user (sender).
+  // }
+
+  // @Router.get("/api/messages/received/:recipientId")
+  // async getReceivedMessages(recipientId: ObjectId) {
+  //   // API route to get messages received by a specific user (recipient).
+  // }
+
+  // // API FOR VISIBILITY CONCEPT
+  // @Router.get("/api/visibility/:userId/content")
+  // async getVisibleContent(userId: User) {
+  //   // API route to get all content visible to the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/visibility/:userId/make-visible")
+  // async makeVisible(userId: User, content: Entry) {
+  //   // API route to make a piece of content visible to the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/visibility/:userId/make-invisible")
+  // async makeInvisible(userId: User, content: Entry) {
+  //   // API route to make a piece of content invisible to the user identified by 'userId'.
+  // }
+
+  // // API FOR PROFILE CONCEPT
+  // @Router.get("/api/profiles/:userId")
+  // async getProfile(userId: User) {
+  //   // API route to get the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.get("/api/profiles/:userId/info/all")
+  // async getAllInfo(userId: User) {
+  //   // API route to get all public and private info from the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.get("/api/profiles/:userId/info/private")
+  // async getPrivateInfo(userId: User) {
+  //   // API route to get private info from the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.get("/api/profiles/:userId/info/public")
+  // async getPublicInfo(userId: User) {
+  //   // API route to get public info from the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/profiles/create/:userId")
+  // async createProfile(userId: User) {
+  //   // API route to create a new profile for the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/profiles/:userId/info/add/:public")
+  // async addInfo(userId: User, info: Info, public: boolean) {
+  //   // API route to add information (public or private) to the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/profiles/:userId/info/remove/:public")
+  // async removeInfo(userId: User, info: Info, public: boolean) {
+  //   // API route to remove information (public or private) from the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/profiles/:userId/info/update/:public")
+  // async updateInfo(userId: User, infoName: string, infoValue: any, public: boolean) {
+  //   // API route to update information (public or private) in the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/profiles/:userId/info/make-private")
+  // async makeInfoPrivate(userId: User, infoName: string, infoValue: any) {
+  //   // API route to make information private in the profile of the user identified by 'userId'.
+  // }
+
+  // @Router.post("/api/profiles/:userId/info/make-public")
+  // async makeInfoPublic(userId: User, infoName: string, infoValue: any) {
+  //   // API route to make information public in the profile of the user identified by 'userId'.
+  // }
 }
 
 export default getExpressRouter(new Routes());
