@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Friend, Post, User, WebSession } from "./app";
+import { Entry, Friend, Message, Post, Profile, Prompt, User, WebSession } from "./app";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -137,47 +137,110 @@ class Routes {
     return await Friend.rejectRequest(fromId, user);
   }
 
-  // // API FOR ENTRY CONCEPT
-  // @Router.get("/api/prompts/random")
-  // async fetchRandomPrompt() {
-  //   // Fetch a random journal prompt from a separate database or source.
-  // }
+  // API FOR PROMPT
+  @Router.get("/prompts/random")
+  async getRandomPrompt() {
+    return { msg: "Successfully retrieved a prompt!", prompt: await Prompt.getRandomPrompt() };
+  }
 
-  // @Router.post("/api/entries")
-  // async addEntry(session: WebSessionDoc, prompt: string, response: string) {
-  //   // Create a new journal entry with the provided prompt and response for the authenticated user.
-  // }
+  // API FOR ENTRY
+  @Router.get("/entries")
+  async getEntries(author?: string, id?: ObjectId) {
+    if (author && id) {
+      // check that the entry with the id is written by the author
+      const authorId = (await User.getUserByUsername(author))._id;
+      await Entry.isAuthor(authorId, id);
+      return Responses.entry(await Entry.getById(id));
+    } else if (author) {
+      // return the list of entries written by the author
+      const authorId = (await User.getUserByUsername(author))._id;
+      return Responses.entries(await Entry.getByAuthor(authorId));
+    } else if (id) {
+      // return the entry witht the given id
+      return Responses.entry(await Entry.getById(id));
+    } else {
+      // return all the entries
+      return Responses.entries(await Entry.getEntries({}));
+    }
+  }
 
-  // @Router.get("/api/entries/:authorId")
-  // async getEntryByAuthor(authorId: ObjectId) {
-  //   // Retrieve journal entries by a specific author (user) identified by 'authorId'.
-  // }
+  @Router.post("/entries")
+  async addEntry(session: WebSessionDoc, prompt: string, response: string) {
+    const user = WebSession.getUser(session);
+    const created = await Entry.addEntry(user, prompt, response);
+    return { msg: created.msg, entry: await Responses.entry(created.entry) };
+  }
 
-  // @Router.put("/api/entries/:entryId")
-  // async editEntry(entryId: ObjectId, response: string) {
-  //   // Update the response of a specific journal entry identified by 'entryId'.
-  // }
+  @Router.patch("/entries/:_id")
+  async editEntry(session: WebSessionDoc, _id: ObjectId, response: string) {
+    const user = WebSession.getUser(session);
+    await Entry.isAuthor(user, _id);
+    const created = await Entry.editEntry(_id, response);
+    return { msg: created.msg, entry: await Responses.entry(created.entry) };
+  }
 
-  // @Router.delete("/api/entries/:entryId")
-  // async deleteEntry(entryId: ObjectId) {
-  //   // Delete a specific journal entry identified by 'entryId'.
-  // }
+  @Router.delete("/entries/:_id")
+  async removeEntry(session: WebSessionDoc, _id: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Entry.isAuthor(user, _id);
+    return Entry.removeEntry(_id);
+  }
 
-  // // API FOR MESSAGE CONCEPT
-  // @Router.post("/api/messages")
-  // async sendMessage(senderId: ObjectId, recipientId: ObjectId, content: Entry) {
-  //   // API route to send a message with sender, recipient, and content.
-  // }
+  // API FOR MESSAGE CONCEPT
+  @Router.post("/messages")
+  async sendMessage(session: WebSessionDoc, recipientUsername: string, content: ObjectId) {
+    const sender = WebSession.getUser(session);
+    const recipient = (await User.getUserByUsername(recipientUsername))._id;
+    await Entry.isAuthor(sender, content);
+    const created = await Message.sendMessage(sender, recipient, content);
+    return { msg: created.msg, message: await Responses.message(created.message) };
+  }
 
-  // @Router.get("/api/messages/sent/:senderId")
-  // async getSentMessages(senderId: ObjectId) {
-  //   // API route to get messages sent by a specific user (sender).
-  // }
+  @Router.get("/messages/sent")
+  async getSentMessages(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    const username = (await User.getUserById(user)).username;
+    return { msg: `All messages sent by ${username}`, messages: await Responses.messages(await Message.getSentMessages(user)) };
+  }
 
-  // @Router.get("/api/messages/received/:recipientId")
-  // async getReceivedMessages(recipientId: ObjectId) {
-  //   // API route to get messages received by a specific user (recipient).
-  // }
+  @Router.get("/messages/received")
+  async getReceivedMessages(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    const username = (await User.getUserById(user)).username;
+    return { msg: `All messages received by ${username}`, messages: await Responses.messages(await Message.getReceivedMessages(user)) };
+  }
+
+  // API FOR PROFILE CONCEPT
+  @Router.post("/profiles")
+  async createProfile(session: WebSessionDoc, name: string = "", bio: string = "", profileImg: string = "default-image.jpg") {
+    const user = WebSession.getUser(session);
+    const username = (await User.getUserById(user)).username;
+    return { msg: `Profile created successfully for ${username}`, profile: await Responses.profile(await Profile.createProfile(user, name, bio, profileImg)) };
+  }
+
+  @Router.patch("/profiles/edit")
+  async editProfile(session: WebSessionDoc, name?: string, bio?: string, profileImg?: string) {
+    const user = WebSession.getUser(session);
+    if (name) {
+      await Profile.editName(user, name);
+    }
+    if (bio) {
+      await Profile.editBio(user, bio);
+    }
+    if (profileImg) {
+      await Profile.editProfileImg(user, profileImg);
+    }
+    return { msg: "Profile successfully edited!", profile: await Responses.profile(await Profile.getProfile(user)) };
+  }
+
+  @Router.get("/profiles")
+  async getProfile(username?: string) {
+    if (username) {
+      const userId = (await User.getUserByUsername(username))._id;
+      return await Responses.profile(await Profile.getProfile(userId));
+    }
+    return await Responses.profiles(await Profile.getAllProfiles());
+  }
 
   // // API FOR VISIBILITY CONCEPT
   // @Router.get("/api/visibility/:userId/content")
@@ -193,57 +256,6 @@ class Routes {
   // @Router.post("/api/visibility/:userId/make-invisible")
   // async makeInvisible(userId: User, content: Entry) {
   //   // API route to make a piece of content invisible to the user identified by 'userId'.
-  // }
-
-  // // API FOR PROFILE CONCEPT
-  // @Router.get("/api/profiles/:userId")
-  // async getProfile(userId: User) {
-  //   // API route to get the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.get("/api/profiles/:userId/info/all")
-  // async getAllInfo(userId: User) {
-  //   // API route to get all public and private info from the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.get("/api/profiles/:userId/info/private")
-  // async getPrivateInfo(userId: User) {
-  //   // API route to get private info from the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.get("/api/profiles/:userId/info/public")
-  // async getPublicInfo(userId: User) {
-  //   // API route to get public info from the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.post("/api/profiles/create/:userId")
-  // async createProfile(userId: User) {
-  //   // API route to create a new profile for the user identified by 'userId'.
-  // }
-
-  // @Router.post("/api/profiles/:userId/info/add/:public")
-  // async addInfo(userId: User, info: Info, public: boolean) {
-  //   // API route to add information (public or private) to the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.post("/api/profiles/:userId/info/remove/:public")
-  // async removeInfo(userId: User, info: Info, public: boolean) {
-  //   // API route to remove information (public or private) from the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.post("/api/profiles/:userId/info/update/:public")
-  // async updateInfo(userId: User, infoName: string, infoValue: any, public: boolean) {
-  //   // API route to update information (public or private) in the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.post("/api/profiles/:userId/info/make-private")
-  // async makeInfoPrivate(userId: User, infoName: string, infoValue: any) {
-  //   // API route to make information private in the profile of the user identified by 'userId'.
-  // }
-
-  // @Router.post("/api/profiles/:userId/info/make-public")
-  // async makeInfoPublic(userId: User, infoName: string, infoValue: any) {
-  //   // API route to make information public in the profile of the user identified by 'userId'.
   // }
 }
 

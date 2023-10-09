@@ -1,34 +1,37 @@
 import { Filter, ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
+import { NotAllowedError } from "./errors";
 
-// T is the generic type parameter for the content that messages will send
-export interface MessageDoc<T> extends BaseDoc {
+export interface MessageDoc extends BaseDoc {
   sender: ObjectId;
   recipient: ObjectId;
-  content: T;
+  content: ObjectId;
 }
 
-export default class MessageConcept<T> {
-  public readonly messages = new DocCollection<MessageDoc<T>>("messages");
+export default class MessageConcept {
+  public readonly messages = new DocCollection<MessageDoc>("messages");
 
-  async sendMessage(sender: ObjectId, recipient: ObjectId, content: T) {
+  async sendMessage(sender: ObjectId, recipient: ObjectId, content: ObjectId) {
+    if (sender.equals(recipient)) {
+      throw new NotAllowedError(`You cannot send a message to yourself!`);
+    }
     const _id = await this.messages.createOne({ sender, recipient, content });
     const message = await this.messages.readOne({ _id });
-    return { msg: "Message successfully sent!", message };
+    return { msg: "Message successfully sent!", message: message };
   }
 
   async getSentMessages(sender: ObjectId) {
-    const query: Filter<MessageDoc<T>> = { sender };
-    return this.getMessages(query);
+    return this.getMessages({ sender });
   }
 
   async getReceivedMessages(recipient: ObjectId) {
-    const query: Filter<MessageDoc<T>> = { recipient };
-    return this.getMessages(query);
+    return this.getMessages({ recipient });
   }
 
-  private async getMessages(query: Filter<MessageDoc<T>>) {
-    const messages = await this.messages.readMany(query);
+  async getMessages(query: Filter<MessageDoc>) {
+    const messages = await this.messages.readMany(query, {
+      sort: { dateUpdated: -1 },
+    });
     return messages;
   }
 }

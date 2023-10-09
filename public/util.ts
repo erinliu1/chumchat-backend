@@ -77,6 +77,72 @@ const operations: operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
+  {
+    name: "Get Random Prompt",
+    endpoint: "/api/prompts/random",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Add Entry",
+    endpoint: "/api/entries",
+    method: "POST",
+    fields: { prompt: "input", response: "input" },
+  },
+  {
+    name: "Get Entries (empty for all)",
+    endpoint: "/api/entries",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
+    name: "Edit Entry",
+    endpoint: "/api/entries/:id",
+    method: "PATCH",
+    fields: { id: "input", response: "input" },
+  },
+  {
+    name: "Delete Entry",
+    endpoint: "/api/entries/:id",
+    method: "DELETE",
+    fields: { id: "input" },
+  },
+  {
+    name: "Send Message",
+    endpoint: "/api/messages",
+    method: "POST",
+    fields: { recipientUsername: "input", content: "input" },
+  },
+  {
+    name: "Get All Sent Messages",
+    endpoint: "/api/messages/sent",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Get All Received Messages",
+    endpoint: "/api/messages/received",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Get Profile (empty for all)",
+    endpoint: "/api/profiles",
+    method: "GET",
+    fields: { username: "input" },
+  },
+  {
+    name: "Create Profile",
+    endpoint: "/api/profiles",
+    method: "POST",
+    fields: { name: "input", bio: "input", profileImg: "input" },
+  },
+  {
+    name: "Edit Profile",
+    endpoint: "/api/profiles/edit",
+    method: "PATCH",
+    fields: { name: "input", bio: "input", profileImg: "input" },
+  },
 ];
 
 // Do not edit below here.
