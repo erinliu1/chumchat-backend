@@ -6,6 +6,7 @@ import EntryConcept from "./concepts/entry";
 import PromptConcept from "./concepts/prompt";
 import MessageConcept from "./concepts/message";
 import ProfileConcept from "./concepts/profile";
+import VisibilityConcept from "./concepts/visibility";
 
 // App Definition using concepts
 export const WebSession = new WebSessionConcept();
@@ -16,3 +17,4 @@ export const Entry = new EntryConcept();
 export const Prompt = new PromptConcept();
 export const Message = new MessageConcept();
 export const Profile = new ProfileConcept();
+export const Visibility = new VisibilityConcept();

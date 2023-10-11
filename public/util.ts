@@ -53,30 +53,30 @@ const operations: operation[] = [
     method: "GET",
     fields: { username: "input" },
   },
-  {
-    name: "Get Posts (empty for all)",
-    endpoint: "/api/posts",
-    method: "GET",
-    fields: { author: "input" },
-  },
-  {
-    name: "Create Post",
-    endpoint: "/api/posts",
-    method: "POST",
-    fields: { content: "input" },
-  },
-  {
-    name: "Update Post",
-    endpoint: "/api/posts/:id",
-    method: "PATCH",
-    fields: { id: "input", update: { content: "input", options: { backgroundColor: "input" } } },
-  },
-  {
-    name: "Delete Post",
-    endpoint: "/api/posts/:id",
-    method: "DELETE",
-    fields: { id: "input" },
-  },
+  // {
+  //   name: "Get Posts (empty for all)",
+  //   endpoint: "/api/posts",
+  //   method: "GET",
+  //   fields: { author: "input" },
+  // },
+  // {
+  //   name: "Create Post",
+  //   endpoint: "/api/posts",
+  //   method: "POST",
+  //   fields: { content: "input" },
+  // },
+  // {
+  //   name: "Update Post",
+  //   endpoint: "/api/posts/:id",
+  //   method: "PATCH",
+  //   fields: { id: "input", update: { content: "input", options: { backgroundColor: "input" } } },
+  // },
+  // {
+  //   name: "Delete Post",
+  //   endpoint: "/api/posts/:id",
+  //   method: "DELETE",
+  //   fields: { id: "input" },
+  // },
   {
     name: "Get Random Prompt",
     endpoint: "/api/prompts/random",
@@ -126,22 +126,40 @@ const operations: operation[] = [
     fields: {},
   },
   {
-    name: "Get Profile (empty for all)",
-    endpoint: "/api/profiles",
-    method: "GET",
-    fields: { username: "input" },
-  },
-  {
     name: "Create Profile",
     endpoint: "/api/profiles",
     method: "POST",
     fields: { name: "input", bio: "input", profileImg: "input" },
   },
   {
+    name: "Get Profile (empty for all)",
+    endpoint: "/api/profiles",
+    method: "GET",
+    fields: { username: "input" },
+  },
+  {
     name: "Edit Profile",
     endpoint: "/api/profiles/edit",
     method: "PATCH",
     fields: { name: "input", bio: "input", profileImg: "input" },
+  },
+  {
+    name: "Get Visible Content",
+    endpoint: "/api/visibility",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Make Content Visible to User",
+    endpoint: "/api/visibility/visible",
+    method: "POST",
+    fields: { username: "input", contentId: "input" },
+  },
+  {
+    name: "Make Content Invisible to User",
+    endpoint: "/api/visibility/invisible",
+    method: "POST",
+    fields: { username: "input", contentId: "input" },
   },
 ];
 
